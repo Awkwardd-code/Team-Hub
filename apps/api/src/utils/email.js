@@ -1,88 +1,58 @@
 const nodemailer = require("nodemailer");
 
-let transporter;
-let verificationPromise;
-
-function getTransporter() {
-  if (!transporter) {
-    transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT || 587),
-      secure:
-        typeof process.env.SMTP_SECURE === "string"
-          ? process.env.SMTP_SECURE === "true"
-          : Number(process.env.SMTP_PORT || 587) === 465,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-      connectionTimeout: 10000,
-    });
-  }
-
-  return transporter;
+function getBoolean(value) {
+  return value === true || String(value).toLowerCase() === "true";
 }
+
+const smtpPort = Number(process.env.SMTP_PORT || 587);
+const smtpSecure = getBoolean(process.env.SMTP_SECURE);
+
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST,
+  port: smtpPort,
+  secure: smtpSecure,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+  connectionTimeout: 10000,
+});
 
 async function verifyTransporter() {
-  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    return false;
-  }
-
-  if (!verificationPromise) {
-    verificationPromise = getTransporter()
-      .verify()
-      .then(() => {
-        if (process.env.NODE_ENV !== "production") {
-          console.log("SMTP transporter verified");
-        }
-        return true;
-      })
-      .catch((error) => {
-        verificationPromise = null;
-        if (process.env.NODE_ENV !== "production") {
-          console.error("SMTP verify failed:", error.message);
-        }
-        throw error;
-      });
-  }
-
-  return verificationPromise;
-}
-
-function getSender() {
-  return {
-    from: process.env.SMTP_FROM || process.env.SMTP_USER || "TeamHub <no-reply@teamhub.local>",
-    replyTo: process.env.SMTP_REPLY_TO || process.env.SMTP_USER || undefined,
-  };
-}
-
-async function sendEmail({ to, subject, text, html }) {
-  const { from, replyTo } = getSender();
-
-  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    console.log(`[EMAIL MOCK] To: ${to} | Subject: ${subject} | Body: ${text}`);
-    return;
-  }
-
   try {
-    await verifyTransporter();
-    await getTransporter().sendMail({
-      from,
-      replyTo,
-      to,
-      subject,
-      text,
-      html,
-      headers: {
-        "X-Application-Name": "TeamHub",
-      },
-    });
+    await transporter.verify();
+    console.log("SMTP transporter verified");
   } catch (error) {
-    if (process.env.NODE_ENV !== "production") {
-      console.error(`Email send failed for ${to}:`, error.message);
-    }
-    throw error;
+    console.error("SMTP transporter verification failed:", {
+      message: error.message,
+      code: error.code,
+      command: error.command,
+      response: error.response,
+    });
   }
+}
+
+async function sendEmail({ to, subject, html, text }) {
+  if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    throw new Error("SMTP environment variables are missing");
+  }
+
+  const info = await transporter.sendMail({
+    from: process.env.SMTP_FROM || process.env.SMTP_USER,
+    to,
+    subject,
+    html,
+    text,
+    replyTo: process.env.SMTP_FROM || process.env.SMTP_USER,
+  });
+
+  console.log("Email sent:", {
+    messageId: info.messageId,
+    accepted: info.accepted,
+    rejected: info.rejected,
+  });
+
+  return info;
 }
 
 async function sendVerificationEmail(email, code) {
@@ -106,7 +76,7 @@ async function sendVerificationEmail(email, code) {
     </div>
   `;
 
-  await sendEmail({ to: email, subject, text, html });
+  return sendEmail({ to: email, subject, text, html });
 }
 
 async function sendPasswordResetEmail(email, resetLink) {
@@ -136,10 +106,11 @@ async function sendPasswordResetEmail(email, resetLink) {
     </div>
   `;
 
-  await sendEmail({ to: email, subject, text, html });
+  return sendEmail({ to: email, subject, text, html });
 }
 
 module.exports = {
+  sendEmail,
   verifyTransporter,
   sendVerificationEmail,
   sendPasswordResetEmail,

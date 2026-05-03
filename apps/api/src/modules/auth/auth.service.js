@@ -70,7 +70,17 @@ async function register({ name, email, password }) {
     },
   });
 
-  await sendVerificationEmail(user.email, code);
+  try {
+    await sendVerificationEmail(user.email, code);
+  } catch (error) {
+    console.error("Verification email send failed:", {
+      email: user.email,
+      message: error.message,
+      code: error.code,
+      response: error.response,
+    });
+    throw new Error(process.env.NODE_ENV === "production" ? "Unable to send verification email" : error.message);
+  }
 
   return { email: user.email };
 }
@@ -157,7 +167,17 @@ async function forgotPassword({ email }) {
   });
 
   const resetLink = `${process.env.CLIENT_URL || "http://localhost:3000"}/reset-password?token=${rawToken}`;
-  await sendPasswordResetEmail(user.email, resetLink);
+  try {
+    await sendPasswordResetEmail(user.email, resetLink);
+  } catch (error) {
+    console.error("Forgot password email send failed:", {
+      email: user.email,
+      message: error.message,
+      code: error.code,
+      response: error.response,
+    });
+    throw error;
+  }
 }
 
 async function validateResetPasswordToken(token) {

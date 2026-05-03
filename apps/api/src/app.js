@@ -19,9 +19,12 @@ const settingsRoutes = require("./modules/settings/settings.routes");
 const invitationRoutes = require("./modules/workspace-invitations/invitation.routes");
 
 const app = express();
+app.set("trust proxy", 1);
+
 const isProduction = process.env.NODE_ENV === "production";
 const allowedOrigins = [
   process.env.CLIENT_URL,
+  process.env.CLIENT_URL ? process.env.CLIENT_URL.replace(/\/$/, "") : null,
   process.env.CORS_ORIGINS,
   ...(isProduction ? [] : ["http://localhost:3000"]),
 ]
@@ -40,6 +43,7 @@ app.use(
       if (allowedOrigins.includes(normalizedOrigin)) {
         return callback(null, true);
       }
+      console.error("CORS blocked origin:", origin);
       return callback(new Error(`CORS blocked origin: ${origin}`));
     },
     credentials: true,
@@ -64,6 +68,23 @@ app.use("/api/admin/members", adminMemberRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/invitations", invitationRoutes);
+app.get("/api/debug/env", (req, res) => {
+  res.status(200).json({
+    nodeEnv: process.env.NODE_ENV || "",
+    clientUrl: process.env.CLIENT_URL || "",
+    hasDatabaseUrl: Boolean(process.env.DATABASE_URL),
+    hasSmtpHost: Boolean(process.env.SMTP_HOST),
+    hasSmtpUser: Boolean(process.env.SMTP_USER),
+    hasSmtpPass: Boolean(process.env.SMTP_PASS),
+    smtpHost: process.env.SMTP_HOST || "",
+    smtpPort: process.env.SMTP_PORT || "",
+    smtpSecure: process.env.SMTP_SECURE || "",
+    smtpFrom: process.env.SMTP_FROM || "",
+    hasGoogleClientId: Boolean(process.env.GOOGLE_CLIENT_ID),
+    hasGoogleSecret: Boolean(process.env.GOOGLE_CLIENT_SECRET),
+    googleCallbackUrl: process.env.GOOGLE_CALLBACK_URL || "",
+  });
+});
 
 app.use((error, req, res, next) => {
   if (res.headersSent) {

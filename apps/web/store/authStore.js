@@ -26,7 +26,7 @@ export const useAuthStore = create((set) => ({
   clearUser: () => set({ user: null, initialized: true, loading: false, error: "" }),
   setError: (error) => set({ error }),
 
-  initializeAuth: async () => {
+  fetchMe: async () => {
     set({ loading: true, error: "" });
     try {
       const data = await authApi.me();
@@ -36,6 +36,23 @@ export const useAuthStore = create((set) => ({
     } catch (error) {
       set({ user: null, initialized: true, loading: false, error: error.message });
       return null;
+    }
+  },
+
+  initializeAuth: async () => {
+    return useAuthStore.getState().fetchMe();
+  },
+
+  login: async (payload) => {
+    set({ loading: true, error: "" });
+    try {
+      const data = await authApi.login(payload);
+      const user = normalizeUser(data.user);
+      set({ user, initialized: true, loading: false });
+      return user;
+    } catch (error) {
+      set({ loading: false, error: error.message });
+      throw error;
     }
   },
 

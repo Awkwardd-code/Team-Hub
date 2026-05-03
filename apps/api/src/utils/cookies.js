@@ -1,34 +1,29 @@
 const COOKIE_NAME = "session_token";
 
-function getCookieOptions(includeMaxAge = true) {
+function getCookieOptions() {
   const isProduction = process.env.NODE_ENV === "production";
-  const options = {
+  return {
     httpOnly: true,
     sameSite: isProduction ? "none" : "lax",
     secure: isProduction,
     path: "/",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   };
-
-  if (includeMaxAge) {
-    options.maxAge = 7 * 24 * 60 * 60 * 1000;
-  }
-
-  return options;
 }
 
-function setSessionCookie(res, token, expiresAt) {
-  res.cookie(COOKIE_NAME, token, {
-    ...getCookieOptions(),
-    expires: expiresAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-  });
+function setSessionCookie(res, token) {
+  res.cookie(COOKIE_NAME, token, getCookieOptions());
 }
 
 function clearSessionCookie(res) {
-  res.clearCookie(COOKIE_NAME, getCookieOptions(false));
+  const options = getCookieOptions();
+  delete options.maxAge;
+  res.clearCookie(COOKIE_NAME, options);
 }
 
 module.exports = {
   COOKIE_NAME,
+  getCookieOptions,
   setSessionCookie,
   clearSessionCookie,
 };

@@ -20,7 +20,7 @@ async function verifyEmail(req, res) {
   try {
     const { email, code } = req.body;
     const { user, session } = await authService.verifyEmail({ email, code });
-    setSessionCookie(res, session.token, session.expiresAt);
+    setSessionCookie(res, session.token);
     return res.status(200).json({ user });
   } catch (error) {
     return handleError(res, error);
@@ -31,7 +31,7 @@ async function login(req, res) {
   try {
     const { email, password } = req.body;
     const { user, session } = await authService.login({ email, password });
-    setSessionCookie(res, session.token, session.expiresAt);
+    setSessionCookie(res, session.token);
     console.log("Session cookie set for user:", user.id);
     return res.status(200).json({ user });
   } catch (error) {
@@ -65,8 +65,9 @@ function googleCallback(req, res, next) {
 
     try {
       const session = await authService.createSession(user.id);
-      setSessionCookie(res, session.token, session.expiresAt);
+      setSessionCookie(res, session.token);
       console.log("Google callback success for:", user.email);
+      console.log("Set session cookie. NODE_ENV:", process.env.NODE_ENV);
       console.log("Redirecting to:", `${process.env.CLIENT_URL}/dashboard`);
       return res.redirect(`${process.env.CLIENT_URL}/dashboard`);
     } catch (sessionError) {
