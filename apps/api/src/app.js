@@ -19,9 +19,17 @@ const settingsRoutes = require("./modules/settings/settings.routes");
 const invitationRoutes = require("./modules/workspace-invitations/invitation.routes");
 
 const app = express();
-const configuredOrigins = (process.env.CLIENT_URL || "")
-  .split(",")
-  .map((origin) => origin.trim().replace(/\/+$/, ""))
+const isProduction = process.env.NODE_ENV === "production";
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  process.env.CORS_ORIGINS,
+  ...(isProduction ? [] : ["http://localhost:3000"]),
+]
+  .filter(Boolean)
+  .flatMap((origin) => String(origin).split(","))
+  .map((origin) => origin.trim())
+  .filter(Boolean)
+  .map((origin) => origin.replace(/\/+$/, ""))
   .filter(Boolean);
 
 app.use(
@@ -29,16 +37,16 @@ app.use(
     origin(origin, callback) {
       if (!origin) return callback(null, true);
       const normalizedOrigin = origin.replace(/\/+$/, "");
-      if (configuredOrigins.includes(normalizedOrigin)) {
+      if (allowedOrigins.includes(normalizedOrigin)) {
         return callback(null, true);
       }
-      return callback(new Error("Not allowed by CORS"));
+      return callback(new Error(`CORS blocked origin: ${origin}`));
     },
     credentials: true,
   })
 );
-app.use(express.json({ limit: "5mb" }));
 app.use(cookieParser());
+app.use(express.json({ limit: "5mb" }));
 initializePassport(app);
 
 app.use("/api/health", healthRoutes);

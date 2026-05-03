@@ -32,6 +32,7 @@ async function login(req, res) {
     const { email, password } = req.body;
     const { user, session } = await authService.login({ email, password });
     setSessionCookie(res, session.token, session.expiresAt);
+    console.log("Session cookie set for user:", user.id);
     return res.status(200).json({ user });
   } catch (error) {
     return handleError(res, error);
@@ -58,21 +59,19 @@ function google(req, res, next) {
 function googleCallback(req, res, next) {
   return passport.authenticate("google", { session: false }, async (error, user) => {
     if (error || !user) {
-      const query = new URLSearchParams({
-        error: error?.message || "Google login failed",
-      }).toString();
-      return res.redirect(`${process.env.CLIENT_URL}/login?${query}`);
+      console.error("Google callback failed:", error?.message || "No user returned from Google");
+      return res.redirect(`${process.env.CLIENT_URL}/login?error=google_auth_failed`);
     }
 
     try {
       const session = await authService.createSession(user.id);
       setSessionCookie(res, session.token, session.expiresAt);
+      console.log("Google callback success for:", user.email);
+      console.log("Redirecting to:", `${process.env.CLIENT_URL}/dashboard`);
       return res.redirect(`${process.env.CLIENT_URL}/dashboard`);
     } catch (sessionError) {
-      const query = new URLSearchParams({
-        error: sessionError.message || "Google login failed",
-      }).toString();
-      return res.redirect(`${process.env.CLIENT_URL}/login?${query}`);
+      console.error("Google session creation failed:", sessionError?.message || sessionError);
+      return res.redirect(`${process.env.CLIENT_URL}/login?error=google_auth_failed`);
     }
   })(req, res, next);
 }
@@ -111,6 +110,7 @@ async function logout(req, res) {
 
 async function me(req, res) {
   try {
+    console.log("Auth me cookie exists:", Boolean(req.cookies[COOKIE_NAME]));
     const token = req.cookies[COOKIE_NAME];
     const user = await authService.getUserFromSession(token);
     if (!user) {

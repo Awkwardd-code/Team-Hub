@@ -13,6 +13,7 @@ function sanitizeUser(user) {
     name: user.name,
     email: user.email,
     avatarUrl: user.avatarUrl,
+    provider: user.provider,
     emailVerified: user.emailVerified,
     isAdmin: user.isAdmin,
     createdAt: user.createdAt,
