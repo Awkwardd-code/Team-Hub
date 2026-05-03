@@ -1,3 +1,14 @@
+const { execSync } = require("child_process");
+
+try {
+  console.log("Running prisma generate...");
+  execSync("npx prisma generate --schema=./prisma/schema.prisma", {
+    stdio: "inherit",
+  });
+} catch (err) {
+  console.error("Prisma generate failed:", err);
+}
+
 require("dotenv").config({ path: require("path").resolve(__dirname, "../.env") });
 
 const http = require("http");
