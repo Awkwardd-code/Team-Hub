@@ -85,6 +85,16 @@ app.get("/api/debug/env", (req, res) => {
     googleCallbackUrl: process.env.GOOGLE_CALLBACK_URL || "",
   });
 });
+app.get("/api/debug/email", (req, res) => {
+  res.status(200).json({
+    smtpHost: process.env.SMTP_HOST || "",
+    smtpPort: process.env.SMTP_PORT || "",
+    smtpSecure: process.env.SMTP_SECURE || "",
+    smtpUserExists: Boolean(process.env.SMTP_USER),
+    smtpPassExists: Boolean(process.env.SMTP_PASS),
+    smtpFrom: process.env.SMTP_FROM || "",
+  });
+});
 
 app.use((error, req, res, next) => {
   if (res.headersSent) {

@@ -3,6 +3,9 @@ const { COOKIE_NAME, setSessionCookie, clearSessionCookie } = require("../../uti
 const { passport } = require("./auth.middleware");
 
 function handleError(res, error) {
+  if (error?.message === "Unable to send verification email") {
+    return res.status(500).json({ message: error.message });
+  }
   return res.status(400).json({ message: error.message || "Request failed" });
 }
 

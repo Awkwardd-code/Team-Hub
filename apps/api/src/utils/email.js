@@ -21,13 +21,14 @@ const transporter = nodemailer.createTransport({
 async function verifyTransporter() {
   try {
     await transporter.verify();
-    console.log("SMTP transporter verified");
+    console.log("SMTP transporter verified successfully");
   } catch (error) {
     console.error("SMTP transporter verification failed:", {
       message: error.message,
       code: error.code,
       command: error.command,
       response: error.response,
+      responseCode: error.responseCode,
     });
   }
 }
@@ -111,6 +112,7 @@ async function sendPasswordResetEmail(email, resetLink) {
 
 module.exports = {
   sendEmail,
+  verifyEmailTransporter: verifyTransporter,
   verifyTransporter,
   sendVerificationEmail,
   sendPasswordResetEmail,

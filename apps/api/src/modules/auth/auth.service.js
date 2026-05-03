@@ -44,23 +44,46 @@ async function register({ name, email, password }) {
   assertRequired({ name, email, password }, ["name", "email", "password"]);
 
   const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) {
-    throw new Error("Email already in use");
+  let user = existing;
+
+  if (existing?.emailVerified) {
+    throw new Error("Email already registered");
   }
 
-  const passwordHash = await bcrypt.hash(password, 10);
-  const user = await prisma.user.create({
-    data: {
-      name,
-      email,
-      passwordHash,
-      provider: "credentials",
-      emailVerified: false,
-    },
-  });
+  if (!existing) {
+    const passwordHash = await bcrypt.hash(password, 10);
+    user = await prisma.user.create({
+      data: {
+        name,
+        email,
+        passwordHash,
+        provider: "credentials",
+        emailVerified: false,
+      },
+    });
+  } else {
+    const passwordHash = await bcrypt.hash(password, 10);
+    user = await prisma.user.update({
+      where: { id: existing.id },
+      data: {
+        name,
+        passwordHash,
+        provider: "credentials",
+        emailVerified: false,
+      },
+    });
+  }
 
   const code = generateEmailCode();
   const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+  await prisma.emailVerificationCode.updateMany({
+    where: {
+      userId: user.id,
+      usedAt: null,
+    },
+    data: { usedAt: new Date() },
+  });
 
   await prisma.emailVerificationCode.create({
     data: {
@@ -73,13 +96,14 @@ async function register({ name, email, password }) {
   try {
     await sendVerificationEmail(user.email, code);
   } catch (error) {
-    console.error("Verification email send failed:", {
-      email: user.email,
+    console.error("VERIFICATION EMAIL SEND FAILED:", {
       message: error.message,
       code: error.code,
+      command: error.command,
       response: error.response,
+      responseCode: error.responseCode,
     });
-    throw new Error(process.env.NODE_ENV === "production" ? "Unable to send verification email" : error.message);
+    throw new Error("Unable to send verification email");
   }
 
   return { email: user.email };
@@ -171,10 +195,11 @@ async function forgotPassword({ email }) {
     await sendPasswordResetEmail(user.email, resetLink);
   } catch (error) {
     console.error("Forgot password email send failed:", {
-      email: user.email,
       message: error.message,
       code: error.code,
+      command: error.command,
       response: error.response,
+      responseCode: error.responseCode,
     });
     throw error;
   }
