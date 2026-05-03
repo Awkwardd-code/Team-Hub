@@ -9,6 +9,7 @@
         "dev": "turbo dev",
         "build": "turbo build",
         "lint": "turbo lint",
+        "prestart": "prisma generate --schema=./prisma/schema.prisma && prisma migrate deploy --schema=./prisma/schema.prisma",
         "start": "node src/server.js",
         "postinstall": "prisma generate --schema=./prisma/schema.prisma"
     },
