@@ -8,14 +8,18 @@
     "scripts": {
         "dev": "turbo dev",
         "build": "turbo build",
-        "lint": "turbo lint"
+        "lint": "turbo lint",
+        "start": "node src/server.js",
+        "postinstall": "prisma generate --schema=./prisma/schema.prisma"
     },
     "devDependencies": {
         "turbo": "^2.0.0"
     },
     "packageManager": "npm@10.9.4",
     "dependencies": {
+        "@prisma/client": "^6.19.3",
         "lucide-react": "^1.14.0",
+        "prisma": "^6.19.3",
         "zustand": "^5.0.12"
     }
 }
