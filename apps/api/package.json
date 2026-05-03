@@ -2,15 +2,11 @@
     "name": "api",
     "private": true,
     "scripts": {
-        "dev": "nodemon src/server.js",
-        "build": "echo \"No build step for api\"",
-        "start": "node src/server.js",
-        "lint": "echo \"No lint configured for api\"",
-        "prisma:generate": "prisma generate",
-        "prisma:migrate": "prisma migrate dev"
+        "start": "npx prisma generate --schema=./prisma/schema.prisma && npx prisma migrate deploy --schema=./prisma/schema.prisma && node src/server.js",
+        "dev": "nodemon src/server.js"
     },
     "dependencies": {
-        "@prisma/client": "^6.12.0",
+        "@prisma/client": "^6.19.3",
         "bcrypt": "^5.1.1",
         "cloudinary": "^2.5.1",
         "cookie-parser": "^1.4.6",
@@ -23,10 +19,10 @@
         "nodemailer": "^6.9.14",
         "passport": "^0.7.0",
         "passport-google-oauth20": "^2.0.0",
+        "prisma": "^6.19.3",
         "socket.io": "^4.8.3"
     },
     "devDependencies": {
-        "nodemon": "^3.1.4",
-        "prisma": "^6.12.0"
+        "nodemon": "^3.1.4"
     }
 }
