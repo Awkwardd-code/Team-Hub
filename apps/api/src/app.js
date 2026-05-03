@@ -19,10 +19,21 @@ const settingsRoutes = require("./modules/settings/settings.routes");
 const invitationRoutes = require("./modules/workspace-invitations/invitation.routes");
 
 const app = express();
+const configuredOrigins = (process.env.CLIENT_URL || "")
+  .split(",")
+  .map((origin) => origin.trim().replace(/\/+$/, ""))
+  .filter(Boolean);
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL,
+    origin(origin, callback) {
+      if (!origin) return callback(null, true);
+      const normalizedOrigin = origin.replace(/\/+$/, "");
+      if (configuredOrigins.includes(normalizedOrigin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   })
 );
