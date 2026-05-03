@@ -9,9 +9,9 @@
         "dev": "turbo dev",
         "build": "turbo build",
         "lint": "turbo lint",
-        "prestart": "prisma generate --schema=./prisma/schema.prisma && prisma migrate deploy --schema=./prisma/schema.prisma",
+        "prestart": "prisma generate --schema=./apps/api/prisma/schema.prisma && prisma migrate deploy --schema=./apps/api/prisma/schema.prisma",
         "start": "node src/server.js",
-        "postinstall": "prisma generate --schema=./prisma/schema.prisma"
+        "postinstall": "prisma generate --schema=./apps/api/prisma/schema.prisma"
     },
     "devDependencies": {
         "turbo": "^2.0.0"
