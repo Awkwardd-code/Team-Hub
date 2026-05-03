@@ -1,5 +1,7 @@
+import { getPublicApiUrl } from "./publicEnv";
+
 export async function apiFetch(path, options = {}) {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+  const API_URL = getPublicApiUrl();
 
   const response = await fetch(`${API_URL}${path}`, {
     credentials: "include",

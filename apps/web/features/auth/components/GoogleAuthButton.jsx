@@ -1,4 +1,5 @@
 "use client";
+import { getPublicApiUrl } from "../../../lib/publicEnv";
 
 function GoogleLogo() {
   return (
@@ -13,7 +14,7 @@ function GoogleLogo() {
 
 export default function GoogleAuthButton({ label = "Continue with Google" }) {
   const handleClick = () => {
-    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`;
+    window.location.href = `${getPublicApiUrl()}/api/auth/google`;
   };
 
   return (

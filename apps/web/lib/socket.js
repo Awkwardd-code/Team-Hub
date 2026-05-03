@@ -1,13 +1,14 @@
 "use client";
 
 import { io } from "socket.io-client";
+import { getPublicSocketUrl } from "./publicEnv";
 
 let socket;
 let devListenersAttached = false;
 
 export function getSocket() {
   if (!socket) {
-    socket = io(process.env.NEXT_PUBLIC_SOCKET_URL, {
+    socket = io(getPublicSocketUrl(), {
       withCredentials: true,
       autoConnect: false,
       transports: ["websocket", "polling"],
