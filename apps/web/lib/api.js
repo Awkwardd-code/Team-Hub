@@ -1,7 +1,7 @@
-import { getPublicApiUrl } from "./publicEnv";
+import { requirePublicApiUrl } from "./publicEnv";
 
 export async function apiFetch(path, options = {}) {
-  const API_URL = getPublicApiUrl();
+  const API_URL = requirePublicApiUrl();
 
   const response = await fetch(`${API_URL}${path}`, {
     credentials: "include",
