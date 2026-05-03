@@ -1,0 +1,141 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --bg: #f4f7fb;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --accent: #0ea5e9;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #e0f2fe 0%, var(--bg) 45%);
+  color: var(--text);
+  font-family: "Sora", "Segoe UI", sans-serif;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+html,
+body {
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+
+* {
+  scrollbar-width: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}
+
+.dark body {
+  background: radial-gradient(circle at top, #172554 0%, #020617 48%);
+  color: #f8fafc;
+}
+
+.dark .bg-white {
+  background-color: rgb(15 23 42 / 1);
+}
+
+.dark .bg-slate-50 {
+  background-color: rgb(2 6 23 / 1);
+}
+
+.dark .bg-slate-100 {
+  background-color: rgb(15 23 42 / 1);
+}
+
+.dark .bg-slate-800 {
+  background-color: rgb(30 41 59 / 1);
+}
+
+.dark .border-slate-100,
+.dark .border-slate-200 {
+  border-color: rgb(30 41 59 / 1);
+}
+
+.dark .border-slate-700,
+.dark .border-slate-800 {
+  border-color: rgb(51 65 85 / 1);
+}
+
+.dark .text-slate-900 {
+  color: rgb(248 250 252 / 1);
+}
+
+.dark .text-slate-800,
+.dark .text-slate-700 {
+  color: rgb(226 232 240 / 1);
+}
+
+.dark .text-slate-600 {
+  color: rgb(203 213 225 / 1);
+}
+
+.dark .text-slate-500,
+.dark .text-slate-400 {
+  color: rgb(148 163 184 / 1);
+}
+
+.dark .text-amber-700,
+.dark .text-amber-800 {
+  color: rgb(253 230 138 / 1);
+}
+
+.dark .text-violet-700 {
+  color: rgb(216 180 254 / 1);
+}
+
+.dark input,
+.dark textarea,
+.dark select {
+  background-color: rgb(15 23 42 / 1);
+  border-color: rgb(51 65 85 / 1);
+  color: rgb(248 250 252 / 1);
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: rgb(100 116 139 / 1);
+}
+
+.dark table thead,
+.dark .bg-gray-50 {
+  background-color: rgb(30 41 59 / 1);
+}
+
+.dark .hover\:bg-slate-50:hover,
+.dark .hover\:bg-gray-50:hover,
+.dark .hover\:bg-white:hover {
+  background-color: rgb(30 41 59 / 1);
+}
+
+.dark .bg-red-50 {
+  background-color: rgb(69 10 10 / 0.35);
+}
+
+.dark .bg-emerald-50 {
+  background-color: rgb(6 78 59 / 0.3);
+}

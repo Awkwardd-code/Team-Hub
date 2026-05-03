@@ -1,0 +1,21 @@
+{
+    "name": "team-hub",
+    "private": true,
+    "workspaces": [
+        "apps/*",
+        "packages/*"
+    ],
+    "scripts": {
+        "dev": "turbo dev",
+        "build": "turbo build",
+        "lint": "turbo lint"
+    },
+    "devDependencies": {
+        "turbo": "^2.0.0"
+    },
+    "packageManager": "npm@10.9.4",
+    "dependencies": {
+        "lucide-react": "^1.14.0",
+        "zustand": "^5.0.12"
+    }
+}
