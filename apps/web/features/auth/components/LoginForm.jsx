@@ -23,18 +23,29 @@ export default function LoginForm() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showGoogleSuggestion, setShowGoogleSuggestion] = useState(false);
 
   const onSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setShowGoogleSuggestion(false);
 
     try {
       const data = await authApi.login(form);
       setUser(data.user);
       router.push("/dashboard");
     } catch (err) {
-      setError(err.message);
+      const message = err?.message || "Login failed";
+      setError(message);
+      const lowerMessage = String(message).toLowerCase();
+      if (
+        lowerMessage.includes("invalid email or password") ||
+        lowerMessage.includes("email not verified") ||
+        lowerMessage.includes("unauthorized")
+      ) {
+        setShowGoogleSuggestion(true);
+      }
     } finally {
       setLoading(false);
     }
@@ -88,7 +99,16 @@ export default function LoginForm() {
         />
       </div>
 
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? (
+        <div className="space-y-2">
+          <p className="text-sm text-red-600">{error}</p>
+          {showGoogleSuggestion ? (
+            <p className="text-sm text-slate-600 dark:text-slate-300">
+              If you registered with Google, use <span className="font-medium">Continue with Google</span> below.
+            </p>
+          ) : null}
+        </div>
+      ) : null}
 
       <button
         disabled={loading}

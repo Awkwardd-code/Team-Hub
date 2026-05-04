@@ -103,7 +103,11 @@ async function register({ name, email, password }) {
       response: error.response,
       responseCode: error.responseCode,
     });
-    throw new Error("Unable to send verification email");
+    const emailError = new Error(
+      "We couldn't send the verification email right now. Email delivery is temporarily unavailable, please try again later or continue with Google sign-in."
+    );
+    emailError.code = "EMAIL_SERVICE_UNAVAILABLE";
+    throw emailError;
   }
 
   return { email: user.email };
