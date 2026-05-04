@@ -48,6 +48,9 @@ async function forgotPassword(req, res) {
     await authService.forgotPassword({ email });
     return res.status(200).json({ message: "If an account exists, a reset link has been sent." });
   } catch (error) {
+    if (error?.code === "EMAIL_SERVICE_UNAVAILABLE") {
+      return handleError(res, error);
+    }
     return res.status(200).json({ message: "If an account exists, a reset link has been sent." });
   }
 }

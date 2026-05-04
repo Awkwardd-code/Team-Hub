@@ -205,7 +205,11 @@ async function forgotPassword({ email }) {
       response: error.response,
       responseCode: error.responseCode,
     });
-    throw error;
+    const emailError = new Error(
+      "We couldn't send the reset email right now. Email delivery is temporarily unavailable, please try again later or continue with Google sign-in."
+    );
+    emailError.code = "EMAIL_SERVICE_UNAVAILABLE";
+    throw emailError;
   }
 }
 
